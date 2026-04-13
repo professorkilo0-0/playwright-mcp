@@ -209,16 +209,17 @@
   });
 
   async function searchJobs() {
-    const key = document.getElementById('apiKey').value.trim();
-    const jobType = document.getElementById('jobType').value;
-    const salary = document.getElementById('salary').value;
+    try {
+      const key = (document.getElementById('apiKey').value || '').trim();
+      const jobType = document.getElementById('jobType').value;
+      const salary = document.getElementById('salary').value;
 
-    if (!key || !key.startsWith('sk-ant')) {
-      showError('Please enter a valid Anthropic API key (starts with sk-ant...)');
-      return;
-    }
+      if (!key) {
+        showError('Please paste your Anthropic API key first.');
+        return;
+      }
 
-    localStorage.setItem('anthropic_key', key);
+      localStorage.setItem('anthropic_key', key);
 
     document.getElementById('searchBtn').disabled = true;
     document.getElementById('errorBox').classList.remove('visible');
@@ -256,7 +257,7 @@ Return ONLY the JSON array, no other text.`;
           'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-          model: 'claude-opus-4-6',
+          model: 'claude-haiku-4-5',
           max_tokens: 2048,
           tools: [{ type: 'web_search_20260209', name: 'web_search' }],
           messages: [{ role: 'user', content: prompt }]
@@ -289,6 +290,10 @@ Return ONLY the JSON array, no other text.`;
       document.getElementById('searchBtn').disabled = false;
       document.getElementById('status').classList.remove('visible');
     }
+  } catch (outerErr) {
+    document.getElementById('searchBtn').disabled = false;
+    document.getElementById('status').classList.remove('visible');
+    showError('Error: ' + (outerErr.message || 'Unknown error. Please try again.'));
   }
 
   function showResults(jobs, jobType, salary) {
